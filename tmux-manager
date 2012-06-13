@@ -1,0 +1,18 @@
+#!/bin/bash
+
+project=$1;
+project_dir=$(find ~/dev -iname ${project} -type d | head -n1)
+project_style=${2:-"rails3"}
+
+if [ -z ${project} ]; then
+	echo "project name is mandatory!";
+	exit 1;
+fi
+
+tmux has-session -t ${project} 2>-;
+if [ $? = 0 ]; then
+	tmux attach -t ${project};
+	exit 0;
+fi
+
+$(dirname ${0})/tmux-files/tmux-${project_style} ${project} ${project_dir}

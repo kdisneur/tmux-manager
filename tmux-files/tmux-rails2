@@ -1,0 +1,45 @@
+#! /bin/bash
+
+project=$1;
+project_dir=$2;
+
+function console {
+  tmux new-window -n ${1} -t ${project};
+  tmux send-keys -t ${project} "cd ${project_dir}; clear" C-m;
+  "${1}_console";
+  tmux select-pane -t :.1;
+}
+
+function console_console {
+  tmux send-keys -t ${project} 'script/console' C-m;
+  tmux split-window -v -p 30 -t ${project};
+  tmux send-keys -t ${project} 'tail -f log/development.log' C-m;
+}
+
+function git_console {
+  tmux split-window -v -p 70 -t ${project};
+  tmux send-keys -t ${project} 'git log --graph --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit --date=relative' C-m;
+}
+
+function deployment_console {
+  :
+}
+
+function server_console {
+  tmux send-keys -t ${project} "ssh s.${project}" C-m;
+}
+
+tmux has-session -t ${project} 2>-;
+if [ $? != 0 ]; then
+  tmux new -s ${project} -n editor -d;
+  tmux send-keys -t ${project} "cd ${project}; clear" C-m;
+  tmux send-keys -t ${project} "vim" C-m;
+
+  for console_name in console git deployment server; do
+    console ${console_name};
+  done
+
+  tmux select-window -t ${project}:1;
+fi
+
+tmux attach -t ${project};
