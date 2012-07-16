@@ -1,10 +1,12 @@
-#!/bin/bash
+#!/bin/zsh
 
-workspace_dir='/Users/<USER_NAME>/Workspace'
-
+# you can add some directories, just separate them with spaces
+workspace_dirs=(/Users/kdisneur/Workspace) 
 project=$1;
-project_dir=$(find ${workspace_dir} -iname ${project} -type d | head -n1)
 project_style=${2:-"rails3"}
+
+
+project_dir=$(find ${workspace_dirs} -iname ${project} -type d | head -n1)
 
 if [ -z ${project} ]; then
 	echo "project name is mandatory!";
